@@ -6,7 +6,7 @@
     "name": "dongho",
     "email": "dongho108@naver.com"
   },
-  "repository": "https://github.com/dongho108/second-brain",
+  "repository": "https://github.com/dongho108/second-brain-plugin",
   "license": "MIT",
   "keywords": ["obsidian", "second-brain", "knowledge-management", "idea-capture"],
   "skills": "./skills/",

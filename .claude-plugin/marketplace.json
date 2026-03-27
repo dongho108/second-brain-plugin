@@ -1,0 +1,24 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "second-brain-plugin",
+  "description": "Obsidian 기반 Second Brain vault 자동 세팅, 아이디어 캡처·세션 마무리 워크플로우 플러그인",
+  "owner": {
+    "name": "dongho",
+    "email": "dongho108@naver.com"
+  },
+  "plugins": [
+    {
+      "name": "second-brain-plugin",
+      "description": "Obsidian 기반 Second Brain vault를 자동 세팅하고, 아이디어 캡처·세션 마무리 워크플로우를 제공하는 플러그인",
+      "version": "1.0.0",
+      "author": {
+        "name": "dongho",
+        "email": "dongho108@naver.com"
+      },
+      "source": "./",
+      "category": "productivity",
+      "homepage": "https://github.com/dongho108/second-brain-plugin",
+      "tags": ["obsidian", "second-brain", "knowledge-management", "idea-capture"]
+    }
+  ]
+}
