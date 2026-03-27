@@ -1,0 +1,23 @@
+{
+  "name": "second-brain",
+  "version": "1.0.0",
+  "description": "Obsidian 기반 Second Brain vault를 자동 세팅하고, 아이디어 캡처·세션 마무리 워크플로우를 제공하는 플러그인",
+  "author": {
+    "name": "dongho",
+    "email": "dongho108@naver.com"
+  },
+  "repository": "https://github.com/dongho108/second-brain",
+  "license": "MIT",
+  "keywords": ["obsidian", "second-brain", "knowledge-management", "idea-capture"],
+  "skills": "./skills/",
+  "userConfig": {
+    "github_token": {
+      "description": "GitHub Personal Access Token (repo clone/push에 사용됩니다)",
+      "sensitive": true
+    },
+    "vault_path": {
+      "description": "Vault를 clone할 경로 (기본값: ~/second-brain)",
+      "sensitive": false
+    }
+  }
+}
