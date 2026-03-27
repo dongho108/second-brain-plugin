@@ -1,5 +1,5 @@
 ---
-name: wrap-up
+name: session-out
 description: |
   세션을 마무리하는 스킬. 대화 중 얻은 인사이트를 lesson-learns에 저장하고, git commit & push로 마무리한다.
   사용자가 "끝", "마무리", "wrap up", "세션 끝", "오늘은 여기까지", "저장하고 끝내자",
@@ -7,7 +7,7 @@ description: |
   대화 종료 시점뿐 아니라, 중간에 "지금까지 배운거 정리해줘" 같은 요청에도 트리거한다.
 ---
 
-# Wrap-up
+# Session-out
 
 세션을 마무리할 때 인사이트를 캡처하고 변경사항을 커밋하는 워크플로우.
 

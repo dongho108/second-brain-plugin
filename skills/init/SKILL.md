@@ -215,7 +215,7 @@ Obsidian 앱에서 이 vault를 열어주세요:
 다음 단계:
 - Obsidian 앱에서 vault를 열어주세요
 - /second-brain:idea 로 아이디어 캡처
-- /second-brain:wrap-up 으로 세션 마무리
+- /second-brain:session-out 으로 세션 마무리
 ```
 
 ## $ARGUMENTS 처리

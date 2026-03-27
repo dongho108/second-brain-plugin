@@ -33,7 +33,7 @@ claude --plugin-dir ./second-brain-plugin
 |---|---|---|
 | init | `/second-brain:init` | Vault clone + 환경 세팅 |
 | idea | `/second-brain:idea` | 아이디어 빠르게 캡처 |
-| wrap-up | `/second-brain:wrap-up` | 세션 마무리 + lesson-learns 저장 |
+| session-out | `/second-brain:session-out` | 세션 마무리 + lesson-learns 저장 |
 
 ## 빠른 시작
 
@@ -45,5 +45,5 @@ claude --plugin-dir ./second-brain-plugin
 /second-brain:idea 앱에서 AI 추천 기능을 넣으면 전환율이 올라갈 것 같다
 
 # 3. 세션 마무리
-/second-brain:wrap-up
+/second-brain:session-out
 ```

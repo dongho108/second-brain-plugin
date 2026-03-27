@@ -291,7 +291,7 @@ frontmatter 규칙:
 
 다음 단계:
 - /load {PROJECT_NAME} 으로 프로젝트 컨텍스트 로드
-- /wrap-up 으로 세션 마무리 시 lesson-learns 자동 저장
+- /session-out 으로 세션 마무리 시 lesson-learns 자동 저장
 ```
 
 ### 7. 검증
