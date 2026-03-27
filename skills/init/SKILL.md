@@ -12,35 +12,58 @@ description: |
 
 ## 사전 조건
 
-- `github_token`: 플러그인 설치 시 userConfig로 입력받은 GitHub PAT
-  - 환경변수 `CLAUDE_PLUGIN_OPTION_GITHUB_TOKEN`으로 접근 가능
-- `vault_path`: vault를 clone할 경로 (기본값: `~/second-brain`)
-  - 환경변수 `CLAUDE_PLUGIN_OPTION_VAULT_PATH`로 접근 가능
+- `github_token`: GitHub PAT (repo 권한 필요) — AskUserQuestion으로 런타임에 입력받음
+- `vault_path`: vault를 clone할 경로 (기본값: `~/second-brain`) — AskUserQuestion으로 런타임에 입력받음
 
 ## 실행 순서
 
-### 1. 환경 확인
+### 1. 사용자 입력 수집
 
-먼저 현재 환경을 점검한다:
+`$ARGUMENTS`로 vault 경로가 전달되지 않은 경우, AskUserQuestion을 사용하여 필요한 정보를 수집한다.
 
-```bash
-# GitHub 토큰 확인
-if [ -z "$CLAUDE_PLUGIN_OPTION_GITHUB_TOKEN" ]; then
-  echo "ERROR: GitHub 토큰이 설정되지 않았습니다. 플러그인 설정에서 github_token을 입력해주세요."
-  exit 1
-fi
+#### 1-1. Vault 경로
 
-# vault 경로 결정
-VAULT_PATH="${CLAUDE_PLUGIN_OPTION_VAULT_PATH:-$HOME/second-brain}"
+`$ARGUMENTS`가 비어있으면 AskUserQuestion으로 vault 경로를 입력받는다:
+
 ```
+AskUserQuestion:
+  question: "Vault를 어디에 clone할까요?"
+  header: "Vault 경로"
+  options:
+    - label: "~/second-brain (기본값)"
+      description: "홈 디렉토리 아래 second-brain 폴더에 clone합니다."
+    - label: "직접 입력"
+      description: "원하는 경로를 직접 지정합니다."
+```
+
+- 기본값 선택 시: `VAULT_PATH="$HOME/second-brain"`
+- 직접 입력 시: 사용자가 입력한 경로를 `VAULT_PATH`로 사용
+- `$ARGUMENTS`가 있으면: 해당 값을 `VAULT_PATH`로 사용하고 이 질문을 건너뜀
+
+#### 1-2. GitHub Token
+
+AskUserQuestion으로 GitHub PAT를 입력받는다:
+
+```
+AskUserQuestion:
+  question: "GitHub Personal Access Token을 입력해주세요. (repo 권한이 필요합니다)"
+  header: "GitHub Token"
+  options:
+    - label: "직접 입력"
+      description: "GitHub PAT를 입력합니다. Settings > Developer settings > Personal access tokens에서 생성할 수 있습니다."
+    - label: "건너뛰기"
+      description: "이미 git credential이 설정되어 있다면 건너뛸 수 있습니다."
+```
+
+- 직접 입력 시: 사용자가 입력한 값을 `GITHUB_TOKEN`으로 사용
+- 건너뛰기 시: 토큰 없이 진행 (기존 git credential에 의존)
 
 ### 2. Repo Clone
 
-GitHub 토큰을 사용하여 repo를 clone한다:
+수집한 값을 사용하여 repo를 clone한다:
 
 ```bash
-VAULT_PATH="${CLAUDE_PLUGIN_OPTION_VAULT_PATH:-$HOME/second-brain}"
-GITHUB_TOKEN="$CLAUDE_PLUGIN_OPTION_GITHUB_TOKEN"
+# VAULT_PATH와 GITHUB_TOKEN은 1단계에서 수집한 값
 
 # 이미 존재하면 pull
 if [ -d "$VAULT_PATH/.git" ]; then
@@ -48,35 +71,43 @@ if [ -d "$VAULT_PATH/.git" ]; then
   cd "$VAULT_PATH"
   git pull
 else
-  # clone with token
-  git clone "https://${GITHUB_TOKEN}@github.com/dongho108/second-brain.git" "$VAULT_PATH"
+  if [ -n "$GITHUB_TOKEN" ]; then
+    # clone with token
+    git clone "https://${GITHUB_TOKEN}@github.com/dongho108/second-brain.git" "$VAULT_PATH"
+  else
+    # clone without token (기존 credential에 의존)
+    git clone "https://github.com/dongho108/second-brain.git" "$VAULT_PATH"
+  fi
   cd "$VAULT_PATH"
 fi
 ```
 
 ### 3. Git 인증 설정
 
-`.envrc`와 `.git-askpass`를 생성하여 이후 push/pull이 자동으로 동작하도록 한다:
+GitHub 토큰이 제공된 경우, `.envrc`와 `.git-askpass`를 생성하여 이후 push/pull이 자동으로 동작하도록 한다:
 
 ```bash
 cd "$VAULT_PATH"
 
-# .git-askpass 생성
-cat > .git-askpass << 'SCRIPT'
+# 토큰이 있을 때만 인증 파일 생성
+if [ -n "$GITHUB_TOKEN" ]; then
+  # .git-askpass 생성
+  cat > .git-askpass << 'SCRIPT'
 #!/bin/sh
 echo "$GITHUB_TOKEN"
 SCRIPT
-chmod +x .git-askpass
+  chmod +x .git-askpass
 
-# .envrc 생성
-cat > .envrc << EOF
+  # .envrc 생성
+  cat > .envrc << EOF
 export GITHUB_TOKEN="${GITHUB_TOKEN}"
 export GIT_ASKPASS="$(pwd)/.git-askpass"
 EOF
 
-# direnv가 있으면 allow
-if command -v direnv &>/dev/null; then
-  direnv allow "$VAULT_PATH"
+  # direnv가 있으면 allow
+  if command -v direnv &>/dev/null; then
+    direnv allow "$VAULT_PATH"
+  fi
 fi
 ```
 
@@ -164,4 +195,4 @@ Obsidian 앱에서 이 vault를 열어주세요:
 
 ## $ARGUMENTS 처리
 
-사용자가 `/init ~/my-vault` 처럼 경로를 인자로 전달하면, 해당 경로를 `VAULT_PATH`로 사용한다. `$ARGUMENTS`가 비어있으면 `CLAUDE_PLUGIN_OPTION_VAULT_PATH` 또는 기본값 `~/second-brain`을 사용한다.
+사용자가 `/init ~/my-vault` 처럼 경로를 인자로 전달하면, 해당 경로를 `VAULT_PATH`로 사용하고 경로 질문을 건너뛴다. `$ARGUMENTS`가 비어있으면 AskUserQuestion으로 경로를 입력받는다.

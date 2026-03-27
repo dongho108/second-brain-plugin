@@ -20,12 +20,12 @@ claude --plugin-dir ./second-brain-plugin
 
 ## 설정
 
-설치 시 다음 값을 입력합니다:
+`/second-brain:init` 실행 시 대화형으로 필요한 설정을 입력받습니다:
 
-| 설정 | 설명 | 필수 |
+| 설정 | 설명 | 입력 방식 |
 |---|---|---|
-| `github_token` | GitHub Personal Access Token (repo 권한 필요) | ✅ |
-| `vault_path` | Vault clone 경로 (기본값: `~/second-brain`) | |
+| `github_token` | GitHub Personal Access Token (repo 권한 필요) | 대화형 입력 (건너뛰기 가능) |
+| `vault_path` | Vault clone 경로 (기본값: `~/second-brain`) | 대화형 선택 또는 `/init <경로>` 인자 |
 
 ## 스킬
 
