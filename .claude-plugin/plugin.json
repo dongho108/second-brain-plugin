@@ -9,15 +9,5 @@
   "repository": "https://github.com/dongho108/second-brain-plugin",
   "license": "MIT",
   "keywords": ["obsidian", "second-brain", "knowledge-management", "idea-capture"],
-  "skills": "./skills/",
-  "userConfig": {
-    "github_token": {
-      "description": "GitHub Personal Access Token (repo clone/push에 사용됩니다)",
-      "sensitive": true
-    },
-    "vault_path": {
-      "description": "Vault를 clone할 경로 (기본값: ~/second-brain)",
-      "sensitive": false
-    }
-  }
+  "skills": "./skills/"
 }

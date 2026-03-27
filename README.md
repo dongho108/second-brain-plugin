@@ -15,7 +15,7 @@ claude --plugin-dir ./second-brain-plugin
 ```bash
 # 마켓플레이스 등록 후
 /plugin marketplace add dongho108/second-brain-plugin
-/plugin install second-brain
+/plugin install second-brain-plugin
 ```
 
 ## 설정
