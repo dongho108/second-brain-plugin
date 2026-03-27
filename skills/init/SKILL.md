@@ -152,18 +152,43 @@ done
 
 ### 5. Obsidian CLI 확인
 
-Obsidian CLI가 설치되어 있는지 확인한다:
+Obsidian CLI가 설치되어 있는지 확인하고, 미설치 시 자동 설치를 제안한다:
 
 ```bash
 if command -v obsidian &>/dev/null; then
   echo "✅ Obsidian CLI 사용 가능"
   obsidian help 2>/dev/null && echo "✅ Obsidian 앱 연결 확인"
 else
-  echo "⚠️ Obsidian CLI가 설치되어 있지 않습니다."
-  echo "   설치: https://github.com/Yakitrak/obsidian-cli"
-  echo "   brew install yakitrak/tap/obsidian-cli"
+  # AskUserQuestion으로 설치 여부 확인
 fi
 ```
+
+CLI가 없으면 AskUserQuestion으로 설치 여부를 묻는다:
+
+```
+AskUserQuestion:
+  question: "Obsidian CLI가 설치되어 있지 않습니다. 설치할까요?"
+  header: "CLI 설치"
+  options:
+    - label: "설치 (Recommended)"
+      description: "brew install yakitrak/tap/obsidian-cli 를 실행하여 Obsidian CLI를 설치합니다."
+    - label: "건너뛰기"
+      description: "설치 없이 진행합니다. 나중에 직접 설치할 수 있습니다."
+```
+
+- 설치 선택 시:
+
+```bash
+if command -v brew &>/dev/null; then
+  brew install yakitrak/tap/obsidian-cli
+  echo "✅ Obsidian CLI 설치 완료"
+else
+  echo "⚠️ Homebrew가 설치되어 있지 않습니다. brew 설치 후 다시 시도해주세요."
+  echo "   Homebrew 설치: https://brew.sh"
+fi
+```
+
+- 건너뛰기 선택 시: 설치 없이 다음 단계로 진행
 
 ### 6. Obsidian Vault 등록 안내
 
