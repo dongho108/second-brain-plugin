@@ -40,10 +40,18 @@ common-context/lesson-learns/YYYY-MM-DD-주제.md
 
 ### 3. 파일 작성
 
-Obsidian CLI로 노트를 생성한다:
+`obsidian`(= notesmd-cli)은 **vault 이름**으로 동작한다. 노트 생성 전 vault를 1회 등록하고 이름을 잡아둔다(반복 호출 무해). 2단계의 저장경로는 vault 루트 기준 상대경로이므로 현재 디렉토리를 vault 루트로 간주한다:
 
 ```bash
-obsidian create name="YYYY-MM-DD-주제" path="저장경로/YYYY-MM-DD-주제.md" content="..." silent
+VAULT_PATH="$(pwd)"
+obsidian add-vault "$VAULT_PATH" --set-default 2>/dev/null
+VAULT_NAME="$(basename "$VAULT_PATH")"
+```
+
+노트명은 **확장자 없는 vault 상대경로**다(하위 폴더 자동 생성). `저장경로`는 `projects/{프로젝트명}/lesson-learns` 또는 `common-context/lesson-learns`:
+
+```bash
+obsidian create "저장경로/YYYY-MM-DD-주제" --content "..." -v "$VAULT_NAME"
 ```
 
 파일 형식은 간결하게 유지한다:

@@ -150,16 +150,22 @@ for skill_dir in agents/skills/*/; do
 done
 ```
 
-### 5. Obsidian CLI 확인
+### 5. Obsidian CLI(notesmd-cli) 확인/설치
 
-Obsidian CLI가 설치되어 있는지 확인하고, 미설치 시 자동 설치를 제안한다:
+이 vault의 스킬은 `obsidian` 명령을 호출한다. 실제 도구는 **notesmd-cli**(구 Yakitrak `obsidian-cli`가 개명됨, tap도 `yakitrak/yakitrak`로 변경)이며, `obsidian`은 그 별칭(symlink)이다. npm 패키지 `obsidian-cli`(obsidianqa 테스트툴)가 같은 `obsidian` 이름을 점유하는 경우가 있어 충돌을 먼저 정리한다.
 
 ```bash
-if command -v obsidian &>/dev/null; then
-  echo "✅ Obsidian CLI 사용 가능"
-  obsidian help 2>/dev/null && echo "✅ Obsidian 앱 연결 확인"
-else
-  # AskUserQuestion으로 설치 여부 확인
+# 1) obsidian이 npm obsidianqa(cli.js)이면 obsidianqa로 보존하고 이름 비우기
+OBS_PATH="$(command -v obsidian 2>/dev/null)"
+if [ -n "$OBS_PATH" ] && readlink "$OBS_PATH" 2>/dev/null | grep -q "node_modules/obsidian-cli/cli.js"; then
+  echo "⚠️ obsidian 이름을 obsidianqa(npm)가 점유 중 → 'obsidianqa'로 보존"
+  ln -sf "../lib/node_modules/obsidian-cli/cli.js" "$(dirname "$OBS_PATH")/obsidianqa"
+  rm -f "$OBS_PATH"
+fi
+
+# 2) notesmd-cli 동작 확인
+if command -v obsidian &>/dev/null && obsidian --version 2>&1 | grep -qi notesmd; then
+  echo "✅ obsidian = notesmd-cli 사용 가능"
 fi
 ```
 
@@ -167,11 +173,11 @@ CLI가 없으면 AskUserQuestion으로 설치 여부를 묻는다:
 
 ```
 AskUserQuestion:
-  question: "Obsidian CLI가 설치되어 있지 않습니다. 설치할까요?"
+  question: "Obsidian CLI(notesmd-cli)가 설치되어 있지 않습니다. 설치할까요?"
   header: "CLI 설치"
   options:
     - label: "설치 (Recommended)"
-      description: "brew install yakitrak/tap/obsidian-cli 를 실행하여 Obsidian CLI를 설치합니다."
+      description: "brew tap yakitrak/yakitrak && brew install yakitrak/yakitrak/notesmd-cli 로 설치하고 obsidian 별칭을 만듭니다."
     - label: "건너뛰기"
       description: "설치 없이 진행합니다. 나중에 직접 설치할 수 있습니다."
 ```
@@ -180,8 +186,9 @@ AskUserQuestion:
 
 ```bash
 if command -v brew &>/dev/null; then
-  brew install yakitrak/tap/obsidian-cli
-  echo "✅ Obsidian CLI 설치 완료"
+  brew tap yakitrak/yakitrak && brew install yakitrak/yakitrak/notesmd-cli
+  ln -sf notesmd-cli "$(brew --prefix)/bin/obsidian"
+  echo "✅ notesmd-cli 설치 완료 (obsidian 별칭 생성)"
 else
   echo "⚠️ Homebrew가 설치되어 있지 않습니다. brew 설치 후 다시 시도해주세요."
   echo "   Homebrew 설치: https://brew.sh"
@@ -189,6 +196,14 @@ fi
 ```
 
 - 건너뛰기 선택 시: 설치 없이 다음 단계로 진행
+
+설치/검증 후, notesmd-cli가 vault 이름 기준으로 동작하도록 vault를 등록한다(`idea`·`session-out` 스킬이 이 등록에 의존한다):
+
+```bash
+if command -v obsidian &>/dev/null && obsidian --version 2>&1 | grep -qi notesmd; then
+  obsidian add-vault "$VAULT_PATH" --set-default 2>/dev/null && echo "✅ vault 등록: $(basename "$VAULT_PATH")"
+fi
+```
 
 ### 6. Obsidian Vault 등록 안내
 

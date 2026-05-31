@@ -15,12 +15,23 @@ description: |
 
 사용자가 아이디어를 던지면 즉시 `ideas/` 폴더에 노트를 생성한다.
 
-### 파일 생성 규칙
+### Vault 등록 (notesmd-cli)
 
-Obsidian CLI를 사용하여 노트를 생성한다:
+`obsidian` 명령(= notesmd-cli)은 **vault 이름**으로 동작한다. 노트를 만들기 전 vault를 1회 등록하고 이름을 잡아둔다(반복 호출 무해):
 
 ```bash
-obsidian create name="아이디어-제목" content="frontmatter + 본문" path="ideas/아이디어-제목.md" silent
+# vault 경로 결정: 현재 디렉토리가 vault면 그것을, 아니면 ~/second-brain
+if [ -d "ideas" ] || [ -d ".obsidian" ]; then VAULT_PATH="$(pwd)"; else VAULT_PATH="$HOME/second-brain"; fi
+obsidian add-vault "$VAULT_PATH" --set-default 2>/dev/null
+VAULT_NAME="$(basename "$VAULT_PATH")"
+```
+
+### 파일 생성 규칙
+
+notesmd-cli로 노트를 생성한다. 노트명은 **확장자 없는 vault 상대경로**이며, 하위 폴더는 자동 생성된다:
+
+```bash
+obsidian create "ideas/아이디어-제목" --content "frontmatter + 본문" -v "$VAULT_NAME"
 ```
 
 파일명은 아이디어 핵심을 담은 짧은 한글 또는 영문 slug로 짓는다. 날짜 접두사는 붙이지 않는다 (frontmatter의 created 필드가 대신한다).
@@ -71,7 +82,7 @@ created: 2026-03-27
 
 사용자가 "아이디어 정리해줘", "이거 좀 발전시켜봐" 등을 요청하면 다음 작업을 수행한다:
 
-1. `obsidian search query="status: seed"` 또는 특정 태그로 대상 노트를 찾는다
+1. `obsidian search-content "status: seed" --no-interactive --format text -v "$VAULT_NAME"` 로 (또는 특정 태그로) 대상 노트를 찾는다. 결과는 `경로:라인:내용` 형식(경로는 vault 루트 상대, 앞 슬래시 없음)이며 `ideas/` 경로만 필터링한다(`grep -E '^ideas/'`).
 2. 노트 내용을 읽고 다음을 추가한다:
    - **경쟁사 분석**: 유사 서비스/제품이 있는지 조사
    - **시장 분석**: 관련 시장 규모, 트렌드
@@ -79,7 +90,7 @@ created: 2026-03-27
    - **실행 방안**: 구체적인 다음 단계 제안
 3. status를 `growing`으로 변경한다:
    ```bash
-   obsidian property:set name="status" value="growing" file="아이디어-제목"
+   obsidian frontmatter "ideas/아이디어-제목" --edit --key status --value growing -v "$VAULT_NAME"
    ```
 
 ## 승격 (Promote)
@@ -95,8 +106,9 @@ created: 2026-03-27
 사용자가 "아이디어 목록", "지금 아이디어 뭐있어" 등을 요청하면:
 
 ```bash
-obsidian search query="status: seed OR status: growing"
-obsidian tags sort=count counts
+# search-content는 OR를 지원하지 않으므로 상태별로 각각 검색한다
+obsidian search-content "status: seed" --no-interactive --format text -v "$VAULT_NAME" | grep -E '^ideas/'
+obsidian search-content "status: growing" --no-interactive --format text -v "$VAULT_NAME" | grep -E '^ideas/'
 ```
 
 상태별로 그룹핑하여 간결하게 보여준다.
